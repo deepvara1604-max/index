@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Happy Birthday,PAPA!</title>
+  <style>
+    :root{
+      --gold:#ffd873;
+      --gold-strong:#ffdf5a;
+      --bg1:#0a0026;
+      --bg2:#12003a;
+      --card:#1a0033;
+      --accent:#a020f0;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(circle at 20% 10%, rgba(255,215,0,0.04) 0%, transparent 20%),
+                  linear-gradient(180deg, var(--bg1), var(--bg2));
+      color: #fff;
+      overflow-x:hidden;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+
+    /* Heading with sparkling border */
+    .heading-wrap{
+      margin:28px 0 6px;
+      padding: 6px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      position:relative;
+      z-index: 30;
+    }
+    h1{
+      margin:0;
+      font-size:2.6rem;
+      padding:14px 26px;
+      color:var(--gold);
+      background: linear-gradient(180deg, rgba(255,250,230,0.04), rgba(255,240,200,0.01));
+      border-radius:18px;
+      border:3px solid rgba(255,215,0,0.22);
+      box-shadow: 0 0 18px rgba(255,215,0,0.08), 0 6px 30px rgba(0,0,0,0.6);
+      position:relative;
+      overflow:visible;
+    }
+    /* subtle glowing pulse */
+    @keyframes headingGlow {
+      0%{ box-shadow: 0 0 8px rgba(255,215,0,0.08); }
+      100%{ box-shadow: 0 0 26px rgba(255,236,123,0.16); }
+    }
+    h1{ animation: headingGlow 2s ease-in-out infinite alternate; }
+
+    /* sparkle particle (absolute children inside heading) */
+    .sparkle {
+      position:absolute;
+      width:8px;height:8px;
+      pointer-events:none;
+      border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #fff, var(--gold-strong));
+      filter: drop-shadow(0 0 6px var(--gold-strong));
+      animation: sparkleMove 1.2s linear forwards;
+      opacity:0;
+      z-index:40;
+    }
+    @keyframes sparkleMove {
+      0%{ transform:translateY(6px) scale(0.6); opacity:1; }
+      100%{ transform:translateY(-18px) scale(0); opacity:0; }
+    }
+
+    /* Controls */
+    .controls{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      margin:14px 0;
+      z-index:30;
+      position:relative;
+    }
+    #playMusic{
+      padding:10px 18px;
+      border-radius:12px;
+      background: linear-gradient(180deg,var(--gold),var(--gold-strong));
+      color:#111;
+      border: none;
+      cursor:pointer;
+      font-weight:600;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.45);
+    }
+
+    /* Gallery wrapper */
+    .gallery-wrap{
+      max-width:980px;
+      margin:28px auto 70px;
+      padding:18px;
+      position:relative;
+      z-index:20;
+    }
+
+    /* Gallery card to allow hearts measuring */
+    .gallery-card{
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:20px;
+      padding:30px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:18px;
+      flex-direction:column;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    /* Image frame: golden frame + overflow hidden */
+    .photo-frame{
+      width:84%;
+      max-width:420px;
+      border-radius:18px;
+      padding:12px;
+      background: linear-gradient(180deg, rgba(255,240,200,0.02), rgba(255,230,120,0.01));
+      border:10px solid var(--gold);
+      box-shadow: 0 10px 35px rgba(255,215,0,0.07), inset 0 3px 12px rgba(255,255,255,0.02);
+      position:relative;
+      overflow:hidden;
+    }
+    .photo {
+      display:block;
+      width:100%;
+      height:auto;
+      border-radius:8px;
+      transform-origin:center center;
+      /* starting state: invisible */
+      opacity:0;
+      transition: transform 1200ms cubic-bezier(.2,.9,.2,1), opacity 1000ms ease;
+      will-change: transform, opacity;
+      display:block;
+      object-fit:cover;
+    }
+
+    /* visible class applied to slideshow current image */
+    .visible{
+      opacity:1;
+      transform: scale(1.03);
+    }
+
+    /* previous image gently scales back while fading out */
+    .fading-out{
+      opacity:0;
+      transform: scale(1.08);
+      transition: transform 1000ms ease, opacity 1000ms ease;
+    }
+
+    /* hearts container placed absolutely on top of frame */
+    .hearts-layer{
+      position:absolute;
+      left:0;right:0;bottom:0;top:0;
+      pointer-events:none;
+      overflow:visible;
+      z-index:60;
+    }
+    /* single heart element */
+    .heart {
+      position:absolute;
+      font-size:18px;
+      transform-origin:center;
+      filter: drop-shadow(0 4px 8px rgba(0,0,0,0.25));
+      animation: heartFloat 2200ms cubic-bezier(.2,.95,.2,1) forwards;
+      opacity:0.95;
+      text-shadow: 0 0 10px rgba(255,240,150,0.6);
+      will-change: transform, opacity;
+    }
+    @keyframes heartFloat {
+      0%{ transform: translateY(0) scale(0.6) rotate(-6deg); opacity:0.95; }
+      60%{ opacity:1; }
+      100%{ transform: translateY(-160px) scale(1.1) rotate(8deg); opacity:0; }
+    }
+
+    /* Responsive tweaks */
+    @media (min-width:900px){
+      .gallery-card{ padding:36px; gap:28px; }
+      .photo-frame{ width:48%; max-width:560px; }
+      .gallery-wrap{ padding:0 20px; }
+    }
+    @media (max-width:520px){
+      h1{ font-size:1.6rem; padding:10px 16px; }
+      .photo-frame{ width:92%; padding:8px; border-width:8px; border-radius:14px; }
+    }
+
+    /* Canvas overlay for confetti/balloons/fireworks */
+    #effectsCanvas{
+      position: fixed;
+      top:0; left:0;
+      width:100vw; height:100vh;
+      pointer-events:none;
+      z-index:15; /* behind gallery which is z-index:20+ */
+    }
+
+    /* popup style (simple) */
+    #popup{
+      position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+      background: rgba(0,0,0,0.65); z-index:999;
+    }
+    #popup-box{
+      background:var(--card);
+      color:#ffdfe7;
+      padding:26px;
+      border-radius:16px;
+      border:3px solid var(--gold);
+      max-width:90%;
+      text-align:center;
+      box-shadow: 0 12px 36px rgba(0,0,0,0.6);
+    }
+    #closePopup{ margin-top:12px;padding:10px 18px;border-radius:10px;border:none;background:var(--gold);color:#111;cursor:pointer; }
+
+  </style>
+</head>
+<body>
+
+  <!-- Audio -->
+  <audio id="music" src="BDY.mp3" loop></audio>
+
+  <!-- Heading & Controls -->
+  <div class="heading-wrap">
+    <h1 id="mainHeading">🎉 Happy Birthday, PAPA! 🎉</h1>
+  </div>
+
+  <div class="controls" aria-hidden="false">
+    <button id="playMusic">Play Music</button>
+  </div>
+
+  <!-- Gallery -->
+  <div class="gallery-wrap">
+    <div class="gallery-card">
+      <div class="photo-frame" id="frame1">
+        <img src="img1.jpg" alt="photo 1" class="photo" id="photo1">
+        <div class="hearts-layer" id="hearts-1"></div>
+      </div>
+
+      <div class="photo-frame" id="frame2" style="display:none">
+        <img src="img2.jpg" alt="photo 2" class="photo" id="photo2">
+        <div class="hearts-layer" id="hearts-2"></div>
+      </div>
+
+      <div class="photo-frame" id="frame3" style="display:none">
+        <img src="img3.jpg" alt="photo 3" class="photo" id="photo3">
+        <div class="hearts-layer" id="hearts-3"></div>
+      </div>
+
+      <div class="photo-frame" id="frame4" style="display:none">
+        <img src="img4.jpg" alt="photo 4" class="photo" id="photo4">
+        <div class="hearts-layer" id="hearts-4"></div>
+      </div>
+
+      <div class="photo-frame" id="frame5" style="display:none">
+        <img src="img5.jpg" alt="photo 5" class="photo" id="photo5">
+        <div class="hearts-layer" id="hearts-5"></div>
+      </div>
+
+      <div class="photo-frame" id="frame6" style="display:none">
+        <img src="img6.jpg" alt="photo 6" class="photo" id="photo6">
+        <div class="hearts-layer" id="hearts-6"></div>
+      </div>
+
+      <div class="photo-frame" id="frame7" style="display:none">
+        <img src="img7.jpg" alt="photo 7" class="photo" id="photo7">
+        <div class="hearts-layer" id="hearts-7"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Popup -->
+  <div id="popup">
+    <div id="popup-box">
+      🎉 Happy Birthday, PAPA! 🎉
+      <p style="margin:10px 0 0;color:#ffeedd;font-size:1rem">જન્મદિવસની ખૂબ ખૂબ શુભેચ્છાઓ, પપ્પા!</p>
+      <button id="closePopup">Close</button>
+    </div>
+  </div>
+
+  <!-- Single Canvas for Effects -->
+  <canvas id="effectsCanvas"></canvas>
+
+  <script>
+  /*****************************
+   * Utility & setup
+   *****************************/
+  const playBtn = document.getElementById('playMusic');
+  const audio = document.getElementById('music');
+  const popup = document.getElementById('popup');
+  const closePopup = document.getElementById('closePopup');
+  const heading = document.getElementById('mainHeading');
+
+  // Close popup
+  closePopup.onclick = () => popup.style.display = 'none';
+
+  // play music on click
+  playBtn.addEventListener('click', () => {
+    audio.play().then(()=> { playBtn.style.display = 'none'; })
+    .catch(e => console.warn('play blocked', e));
+  });
+
+  // Add small sparkles periodically on heading
+  function shootHeadingSparkles(){
+    for(let i=0;i<6;i++){
+      const s = document.createElement('div');
+      s.className='sparkle';
+      // randomize position around heading
+      const r = heading.getBoundingClientRect();
+      const left = Math.random()*r.width - 6;
+      const top = Math.random()*r.height - 6;
+      s.style.left = (heading.offsetLeft + left) + 'px';
+      s.style.top = (heading.offsetTop + top) + 'px';
+      // append to body so absolute coords work
+      document.body.appendChild(s);
+      // remove after animation
+      setTimeout(()=> s.remove(), 1400 + Math.random()*300);
+    }
+  }
+  setInterval(shootHeadingSparkles, 650);
+
+
+  /*****************************
+   * Slideshow: Fade + Slight Zoom (cinematic)
+   * We show one .photo at a time inside visible .photo-frame.
+   * When a frame becomes current, we:
+   *  - add .visible to its <img> to fade+zoom in
+   *  - remove .visible and add .fading-out to previous to fade it out smoothly
+   *  - spawn gold hearts from the bottom of the visible frame (H3)
+   *****************************/
+  const frames = Array.from(document.querySelectorAll('.photo-frame'));
+  const imgs = frames.map(f => f.querySelector('.photo'));
+  let current = 0;
+
+  // initialize: show first frame and apply visible class after small delay
+  frames.forEach((f,i)=> { if(i!==0) f.style.display='none'; });
+  setTimeout(()=> imgs[0].classList.add('visible'), 80);
+
+  // spawn hearts at bottom of a frame (H3 behavior)
+  function spawnHeartsForFrame(frameIndex){
+    const heartLayer = frames[frameIndex].querySelector('.hearts-layer');
+    const rect = frames[frameIndex].getBoundingClientRect();
+
+    // generate between 6-10 hearts with varying offsets
+    const count = 6 + Math.floor(Math.random()*5);
+    for(let i=0;i<count;i++){
+      const heart = document.createElement('div');
+      heart.className = 'heart';
+      // gold glowing heart character
+      heart.innerHTML = '❤';
+      // random horizontal start near photo bottom center
+      const x = (rect.width*0.18) + Math.random()*(rect.width*0.64);
+      // place inside heartLayer relative
+      heart.style.left = x + 'px';
+      heart.style.bottom = (8 + Math.random()*12) + 'px'; // start a few px above bottom padding
+      // randomize size a bit
+      const size = 12 + Math.random()*18;
+      heart.style.fontSize = size + 'px';
+      // color gold-ish with subtle gradient via text-shadow
+      heart.style.color = 'rgba(255,238,160,0.95)';
+      heart.style.textShadow = '0 0 12px rgba(255,220,90,0.85)';
+      // small horizontal drift using transform animation delay
+      heart.style.transform = `translateX(${(Math.random()*40-20)}px)`;
+      heartLayer.appendChild(heart);
+      // remove after animation finishes (we used 2200ms)
+      setTimeout(()=> heart.remove(), 2400 + Math.random()*600);
+    }
+  }
+
+  // run slideshow
+  let slideshowTimer = null;
+  function goToSlide(next){
+    if(next === current) return;
+    const prev = current;
+    const prevImg = imgs[prev];
+    const nextImg = imgs[next];
+    const prevFrame = frames[prev];
+    const nextFrame = frames[next];
+
+    // show next frame container if hidden
+    nextFrame.style.display = 'block';
+
+    // trigger transitions
+    prevImg.classList.remove('visible');
+    prevImg.classList.add('fading-out');
+
+    // show next image (ensure it's visible then animate in)
+    nextImg.classList.remove('fading-out');
+    // slight delay so browser registers the class removal/add properly
+    requestAnimationFrame(()=>{
+      nextImg.classList.add('visible');
+    });
+
+    // after transition end, hide previous frame container to avoid stacking
+    setTimeout(()=>{
+      prevImg.classList.remove('fading-out');
+      // hide prev frame container (but keep image state cleared)
+      prevFrame.style.display = 'none';
+      prevImg.style.opacity = 0;
+      prevImg.style.transform = 'scale(1)';
+    }, 1100);
+
+    // spawn hearts at next frame (H3)
+    spawnHeartsForFrame(next);
+
+    current = next;
+  }
+
+  function nextSlide(){
+    const nextIndex = (current + 1) % frames.length;
+    goToSlide(nextIndex);
+  }
+
+  // start slideshow interval
+  slideshowTimer = setInterval(nextSlide, 3500);
+
+
+  /*****************************
+   * Unified Canvas Effects:
+   * single canvas for confetti + balloons + fireworks (one loop)
+   *****************************/
+  const canvas = document.getElementById('effectsCanvas');
+  const ctx = canvas.getContext('2d');
+
+  function fitCanvas(){
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = Math.floor(window.innerWidth * dpr);
+    canvas.height = Math.floor(window.innerHeight * dpr);
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  fitCanvas();
+  window.addEventListener('resize', fitCanvas);
+
+  /* Confetti */
+  const confetti = [];
+  const confColors = ['#ff4040','#ffd700','#40c9ff','#ff77ff','#fff3b0'];
+  for(let i=0;i<70;i++){
+    confetti.push({
+      x: Math.random()*canvas.width,
+      y: Math.random()*canvas.height - canvas.height,
+      size: 4 + Math.random()*8,
+      color: confColors[Math.floor(Math.random()*confColors.length)],
+      speed: 1 + Math.random()*3,
+      drift: Math.random()*2 - 1,
+      rot: Math.random()*360,
+      rotSpeed: (Math.random()*6 - 3)
+    });
+  }
+
+  /* Balloons */
+  const balloons = [];
+  const balloonCount = 9;
+  for(let i=0;i<balloonCount;i++){
+    balloons.push({
+      x: Math.random()*window.innerWidth,
+      y: window.innerHeight + Math.random()*600,
+      size: 24 + Math.random()*40,
+      speed: 0.6 + Math.random()*1.2,
+      color: `hsl(${Math.random()*360},90%,65%)`,
+      drift: Math.random()*1.2 - 0.6
+    });
+  }
+
+  /* Fireworks: store rockets + particles */
+  const rockets = [];
+  const fireParticles = [];
+
+  function spawnRocket(){
+    rockets.push({
+      x: Math.random()*window.innerWidth,
+      y: window.innerHeight + 10,
+      targetY: (100 + Math.random()*(window.innerHeight*0.45)),
+      speed: 4 + Math.random()*2,
+      color: `hsl(${Math.random()*360},100%,60%)`,
+      exploded: false
+    });
+  }
+
+  function explode(x,y,color){
+    const count = 28 + Math.floor(Math.random()*28);
+    for(let i=0;i<count;i++){
+      fireParticles.push({
+        x,y,
+        angle: Math.random()*Math.PI*2,
+        speed: 1 + Math.random()*4,
+        life: 50 + Math.floor(Math.random()*40),
+        size: 2 + Math.random()*3,
+        color
+      });
+    }
+  }
+
+  let lastTime = 0;
+  function animate(time=0){
+    const dt = time - lastTime;
+    lastTime = time;
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // confetti
+    for(let p of confetti){
+      p.y += p.speed * (dt/16);
+      p.x += p.drift * (dt/16);
+      p.rot += p.rotSpeed * (dt/16);
+      if(p.y > window.innerHeight + 20) {
+        p.y = -10 - Math.random()*300;
+        p.x = Math.random()*window.innerWidth;
+      }
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.size/2, -p.size/2, p.size, p.size*0.7);
+      ctx.restore();
+    }
+
+    // balloons
+    for(let b of balloons){
+      b.y -= b.speed * (dt/16);
+      b.x += b.drift * (dt/16);
+      if(b.y < -80){
+        b.y = window.innerHeight + 30 + Math.random()*300;
+        b.x = Math.random()*window.innerWidth;
+      }
+      // string
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+      ctx.lineWidth = 1;
+      ctx.moveTo(b.x, b.y + b.size);
+      ctx.lineTo(b.x, b.y + b.size + 18);
+      ctx.stroke();
+      // balloon
+      ctx.beginPath();
+      ctx.fillStyle = b.color;
+      ctx.ellipse(b.x, b.y, b.size*0.7, b.size, 0, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    // rockets
+    if(Math.random() < 0.02) spawnRocket();
+    for(let i = rockets.length -1; i>=0; i--){
+      const r = rockets[i];
+      if(!r.exploded){
+        r.y -= r.speed * (dt/16);
+        ctx.fillStyle = r.color;
+        ctx.fillRect(r.x-2, r.y-2, 4, 4);
+        // smoke tail
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(255,255,255,0.02)';
+        ctx.arc(r.x, r.y+6, 6, 0, Math.PI*2);
+        ctx.fill();
+        if(r.y <= r.targetY){
+          r.exploded = true;
+          explode(r.x, r.y, r.color);
+          rockets.splice(i,1);
+        }
+      }
+    }
+
+    // fire particles
+    for(let i=fireParticles.length-1; i>=0; i--){
+      const fp = fireParticles[i];
+      fp.x += Math.cos(fp.angle) * fp.speed * (dt/16);
+      fp.y += Math.sin(fp.angle) * fp.speed * (dt/16);
+      fp.life--;
+      ctx.globalAlpha = Math.max(fp.life/80,0);
+      ctx.fillStyle = fp.color;
+      ctx.fillRect(fp.x, fp.y, fp.size, fp.size);
+      ctx.globalAlpha = 1;
+      if(fp.life <= 0) fireParticles.splice(i,1);
+    }
+
+    requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+
+  /*****************************
+   * Hearts behavior note:
+   * H3: hearts float from bottom of each photo when that photo becomes active.
+   * Implementation above in spawnHeartsForFrame() is used by slideshow.
+   *****************************/
+
+  /*****************************
+   * Accessibility: pause animations when page hidden
+   *****************************/
+  document.addEventListener('visibilitychange', () => {
+    if(document.hidden){
+      // pause audio if playing
+      // we keep visual animations running for this demo but could reduce work here
+    }
+  });
+
+  </script>
+</body>
+</html>
